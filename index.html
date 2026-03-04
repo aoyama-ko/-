@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>腸活セルフチェック | 美腸カウンセリング</title>
+    <style>
+        :root {
+            --primary-color: #78a5a3; /* 落ち着いたグリーン */
+            --accent-color: #e1b382;  /* 温かみのあるベージュ */
+            --bg-color: #f9fbf9;
+            --text-color: #444;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #quiz-card {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        h2 { font-size: 1.2rem; margin-bottom: 1.5rem; line-height: 1.6; }
+
+        .options { display: flex; flex-direction: column; gap: 10px; }
+
+        button {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            border-color: var(--primary-color);
+            background: #f0f7f6;
+        }
+
+        /* 結果画面の装飾 */
+        #result-screen { display: none; }
+        .score-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem;
+        }
+        .score-number { font-size: 2rem; font-weight: bold; }
+        .advice-box {
+            background: #fff9f2;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            margin-top: 1rem;
+            border-left: 5px solid var(--accent-color);
+        }
+        .cta-button {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 12px 30px;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-card">
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    
+    <div id="question-screen">
+        <h2 id="question-text">読み込み中...</h2>
+        <div class="options" id="options-container">
+            </div>
+    </div>
+
+    <div id="result-screen">
+        <div class="score-circle">
+            <span class="score-number" id="final-score">0</span>
+            <span>点</span>
+        </div>
+        <h3 id="result-title">診断結果</h3>
+        <div class="advice-box" id="result-desc">アドバイスがここに表示されます。</div>
+        <a href="https://line.me/your-id" class="cta-button">個別カウンセリングを予約する</a>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "お通じは毎日ありますか？", a: [{t:"はい", s:2}, {t:"ときどき", s:1}, {t:"あまりない", s:0}] },
+        { q: "発酵食品（納豆・味噌など）を毎日食べますか？", a: [{t:"はい", s:2}, {t:"週に数回", s:1}, {t:"ほぼ食べない", s:0}] },
+        { q: "肌荒れや吹き出物が気になりますか？", a: [{t:"全くない", s:2}, {t:"たまにある", s:1}, {t:"よくある", s:0}] },
+        { q: "ストレスを感じやすいほうですか？", a: [{t:"いいえ", s:2}, {t:"普通", s:1}, {t:"はい", s:0}] },
+        { q: "深夜に食事をすることがありますか？", a: [{t:"ほぼない", s:2}, {t:"たまにある", s:1}, {t:"よくある", s:0}] }
+    ];
+
+    let currentIdx = 0;
+    let totalScore = 0;
+
+    function loadQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('question-text').innerText = q.q;
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        q.a.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.t;
+            btn.onclick = () => nextQuestion(opt.s);
+            container.appendChild(btn);
+        });
+
+        const progress = ((currentIdx) / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = progress + '%';
+    }
+
+    function nextQuestion(score) {
+        totalScore += score;
+        currentIdx++;
+        if (currentIdx < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('question-screen').style.display = 'none';
+        document.getElementById('progress-fill').style.width = '100%';
+        const res = document.getElementById('result-screen');
+        res.style.display = 'block';
+        document.getElementById('final-score').innerText = totalScore;
+
+        let title = "";
+        let desc = "";
+
+        if (totalScore >= 8) {
+            title = "腸活マスター！";
+            desc = "素晴らしい腸内環境です。今の習慣を維持しながら、さらに季節の野菜を取り入れてバリエーションを増やしましょう。";
+        } else if (totalScore >= 5) {
+            title = "まずまずの腸内環境";
+            desc = "悪くはありませんが、伸び代があります。食物繊維の摂取量をあと少し増やし、水分補給を意識してみてください。";
+        } else {
+            title = "腸がSOSを出しています";
+            desc = "腸内細菌のバランスが乱れている可能性があります。まずは温かい飲み物を飲み、発酵食品を1日1品足すことから始めましょう。";
+        }
+
+        document.getElementById('result-title').innerText = title;
+        document.getElementById('result-desc').innerText = desc;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
