@@ -3,87 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美腸スタイル診断 | 腸活カウンセリング</title>
+    <title>美腸スタイル診断 | Premium Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --accent: #4a7c59; --bg: #fdfaf5; --text: #333; }
         body { font-family: "Hiragino Kaku Gothic ProN", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; }
-        #app { background: #fff; width: 100%; max-width: 550px; border-radius: 30px; padding: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); position: relative; }
+        #app { background: #fff; width: 100%; max-width: 550px; border-radius: 30px; padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); overflow: hidden; }
         
-        /* テーマカラー */
-        .theme-sleep { --accent: #5b67a5; } .theme-move { --accent: #e67e22; }
-        .theme-food { --accent: #27ae60; } .theme-mental { --accent: #9b59b6; } .theme-luxury { --accent: #e74c3c; }
-
+        /* 質問・エントリー画面共通 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .tag { padding: 5px 15px; background: var(--accent); color: #fff; border-radius: 20px; font-size: 0.85rem; font-weight: bold; transition: 0.4s; }
-        
-        h2 { font-size: 1.25rem; line-height: 1.6; margin: 30px 0; min-height: 4rem; text-align: center; }
-        input[type="text"] { width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 15px; font-size: 1rem; margin: 20px 0; box-sizing: border-box; }
-        
-        .options { display: grid; gap: 12px; }
-        .opt-btn { padding: 18px; border: 2px solid #f0f0f0; background: #fff; border-radius: 18px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: 0.2s; }
+        .tag { padding: 5px 15px; background: var(--accent); color: #fff; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+        h2 { font-size: 1.2rem; line-height: 1.6; text-align: center; }
+        .opt-btn { width: 100%; padding: 18px; border: 2px solid #f0f0f0; background: #fff; border-radius: 18px; cursor: pointer; font-size: 1rem; margin-bottom: 10px; transition: 0.2s; }
         .opt-btn:hover { border-color: var(--accent); background: #f9fbf9; }
 
-        /* 結果画面のデザイン */
-        #result-screen { display: none; text-align: center; animation: fadeIn 0.8s forwards; }
-        .type-badge { display: inline-block; padding: 10px 25px; background: var(--accent); color: #fff; border-radius: 50px; font-size: 1.1rem; font-weight: bold; margin: 15px 0; }
-        .advice-box { text-align: left; background: #f9f9f9; padding: 25px; border-radius: 20px; margin-top: 25px; line-height: 1.7; border-left: 6px solid var(--accent); }
-        .step-badge { background: #fff; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; }
-        .cta-btn { display: block; margin-top: 30px; padding: 20px; background: #06c755; color: #fff; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.1rem; }
+        /* 結果画面の装飾 */
+        #result-screen { display: none; text-align: center; animation: fadeIn 0.8s; }
+        .total-score { font-size: 1.5rem; font-weight: bold; color: var(--accent); margin-bottom: 10px; }
+        .total-score span { font-size: 2.5rem; }
+        
+        .char-icon { font-size: 5rem; margin: 10px 0; display: block; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1)); }
+        .type-badge { display: inline-block; padding: 8px 25px; background: var(--accent); color: #fff; border-radius: 50px; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
+        
+        /* カテゴリースコア一覧 */
+        .sub-scores { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
+        .sub-item { background: #f0f4f1; padding: 8px 15px; border-radius: 10px; font-size: 0.85rem; }
+        .sub-item b { color: var(--accent); }
+
+        .advice-box { text-align: left; background: #f9f9f9; padding: 25px; border-radius: 20px; margin-top: 25px; border-left: 6px solid var(--accent); }
+        .homework { background: #fff; border: 2px dashed var(--accent); padding: 15px; border-radius: 15px; margin-top: 15px; font-weight: bold; }
+        .cta-btn { display: block; margin-top: 30px; padding: 20px; background: #06c755; color: #fff; text-decoration: none; border-radius: 50px; font-weight: bold; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="theme-sleep">
+<body>
 
 <div id="app">
-    <div id="entry-screen">
-        <h2 style="min-height:auto;">美腸スタイル診断へようこそ</h2>
-        <p style="text-align:center; color:#666;">30の質問から、あなたの「腸タイプ」と<br>改善のスモールステップを導き出します。</p>
-        <input type="text" id="user-name" placeholder="お名前を教えてください">
-        <button onclick="startQuiz()" style="width:100%; padding:20px; background:var(--accent); color:#fff; border:none; border-radius:50px; font-weight:bold; cursor:pointer;">診断をはじめる</button>
+    <div id="entry-screen" style="text-align:center;">
+        <h2>美腸スタイル診断</h2>
+        <input type="text" id="user-name" placeholder="お名前" style="width:100%; padding:15px; border-radius:10px; border:2px solid #eee; margin-bottom:20px; box-sizing:border-box;">
+        <button class="opt-btn" style="background:var(--accent); color:#fff; border:none;" onclick="startQuiz()">診断を開始する</button>
     </div>
 
     <div id="quiz-screen" style="display:none;">
-        <div class="header">
-            <span id="cat-tag" class="tag">良質な睡眠</span>
-            <span id="progress-text" style="color:#aaa; font-size:0.8rem;">1 / 30</span>
-        </div>
-        <h2 id="q-text">質問内容がここに入ります</h2>
-        <div id="options-list" class="options"></div>
+        <div class="header"><span id="cat-tag" class="tag">カテゴリー</span> <span id="progress-text">1 / 30</span></div>
+        <h2 id="q-text">質問内容</h2>
+        <div id="options-list"></div>
     </div>
 
     <div id="result-screen">
-        <p style="font-weight:bold; margin-bottom:5px;"><span id="display-name"></span>様の診断結果</p>
-        <div id="type-result-name" class="type-badge">判定中...</div>
-        <div style="max-width:350px; margin:0 auto;"><canvas id="radarChart"></canvas></div>
-        <div id="advice-content" class="advice-box"></div>
-        <a href="https://line.me/your-id" class="cta-btn">公式LINEで詳しく相談する</a>
+        <p><b id="res-name"></b>様の腸内環境は...</p>
+        <div class="total-score">腸パワー：<span id="score-val">0</span>点</div>
+        
+        <div class="char-icon" id="char-icon">🌵</div>
+        <div id="type-name" class="type-badge">判定中...</div>
+        
+        <div style="max-width:300px; margin:0 auto;"><canvas id="radarChart"></canvas></div>
+
+        <div class="sub-scores" id="sub-scores-list">
+            </div>
+
+        <div class="advice-box">
+            <p id="type-msg"></p>
+            <div class="homework">
+                <span style="color:var(--accent);">📝 今すぐできる宿題：</span><br>
+                <span id="type-step"></span>
+            </div>
+        </div>
+
+        <a href="#" class="cta-btn">公式LINEでさらに詳しく！</a>
     </div>
 </div>
 
 <script>
-/** 質問データ & 回答ラベル & タイプ別定型文 **/
+// 質問・タイプデータ
 const categories = [
-    { name: "良質な睡眠", theme: "theme-sleep", items: ["昼間に眠気が出る", "なかなか寝付けない", "寝る時間が決まっていない", "夜中に何度も目が覚める", "照明をつけたまま寝る", "就寝前3時間以内の食事"], labels: ["全くない", "たまにある", "よくある", "ほぼ毎日"], reverse: true },
-    { name: "適度な運動", theme: "theme-move", items: ["正しい姿勢で過ごせている", "安静時の深い呼吸", "毎日のストレッチ", "30分以上連続で座り続けない", "毎日30分以上の歩行", "筋力トレーニング"], labels: ["完璧！", "だいたいOK", "あまりしていない", "全くしていない"], reverse: false },
-    { name: "食事習慣", theme: "theme-food", items: ["野菜50%の献立回数", "炭水化物20%:タンパク質30%の比率", "適量の油脂摂取", "発酵食品の量", "食物繊維の量", "咀嚼回数"], labels: ["バッチリ", "意識している", "少し足りない", "できていない"], reverse: false },
-    { name: "メンタル", theme: "theme-mental", items: ["ストレスを溜めている", "ストレスを引きずってしまう", "気分転換がうまくいかない", "解消してもスッキリしない", "気持ちが落ち込むことがよくある", "幸せだと思わない"], labels: ["全くない", "たまにある", "よくある", "常に感じる"], reverse: true },
-    { name: "嗜好品", theme: "theme-luxury", items: ["喫煙（副流煙含む）", "添加物の摂取", "砂糖の摂取", "アルコールの摂取", "揚げ物の摂取", "冷たい飲み物の摂取"], labels: ["ほぼゼロ", "控えめ", "たまに摂る", "かなり多い"], reverse: true }
+    { name: "良質な睡眠", items: ["昼間に眠気が出る", "なかなか寝付けない", "寝る時間が決まっていない", "夜中に何度も目が覚める", "照明をつけたまま寝る", "就寝前3時間以内の食事"], rev: true },
+    { name: "適度な運動", items: ["正しい姿勢で過ごせている", "安静時の深い呼吸", "毎日のストレッチ", "30分以上連続で座り続けない", "毎日30分以上の歩行", "筋力トレーニング"], rev: false },
+    { name: "食事習慣", items: ["野菜50%の献立回数", "炭水化物20%:タンパク質30%の比率", "適量の油脂摂取", "発酵食品の量", "食物繊維の量", "咀嚼回数"], rev: false },
+    { name: "メンタル", items: ["ストレスを溜めている", "ストレスを引きずってしまう", "気分転換がうまくいかない", "解消してもスッキリしない", "気持ちが落ち込むことがよくある", "幸せだと思わない"], rev: true },
+    { name: "嗜好品", items: ["喫煙（副流煙含む）", "添加物の摂取", "砂糖の摂取", "アルコールの摂取", "揚げ物の摂取", "冷たい飲み物の摂取"], rev: true }
 ];
 
-const typeDefinitions = {
-    "良質な睡眠": { name: "ヘトヘト過労腸", msg: "腸もあなたと一緒に残業中。消化活動にエネルギーを使い果たし、修復が追いついていません。", step: "夕食をいつもの7割にして、寝る90分前に入浴。強制シャットダウンを。" },
-    "適度な運動": { name: "スカスカ栄養失調腸", msg: "バケツに穴が空いている状態。良い栄養を入れても土台（粘膜）が弱いと素通りしてしまいます。", step: "味噌汁に『あおさ』や『とろろ昆布』を足して水溶性食物繊維を補給して。" },
-    "食事習慣": { name: "ガチガチ砂漠腸", msg: "一生懸命頑張っているのに、出口が塞がっている状態。今は出すことより潤すことが最優先です。", step: "朝一杯の白湯に、良質なオイルを小さじ1垂らして飲む習慣を。" },
-    "メンタル": { name: "ピリピリ敏感腸", msg: "脳と腸がダイレクトに繋がりすぎ、警報が鳴りっぱなしの状態。まずは脳の緊張を解く時間が必要です。", step: "1日5分だけ、スマホを置いて腹式呼吸。鼻から吸って、口から長く吐き切って。" },
-    "嗜好品": { name: "ドロドロ不完全燃焼腸", msg: "工場（腸）に材料が多すぎ、処理が追いつかずゴミが溜まっている状態。デトックスから始めましょう。", step: "最初の一口目だけ、目をつむって『30回』噛む。これだけで負担が激減します。" }
+const typeInfo = {
+    "良質な睡眠": { name: "ヘトヘト過労腸", icon: "🔋", msg: "腸もあなたと一緒に残業中。消化活動にエネルギーを使い果たし、修復が追いついていません。", step: "夕食をいつもの7割にして、寝る90分前に入浴。強制シャットダウンを。" },
+    "適度な運動": { name: "スカスカ栄養失調腸", icon: "🎈", msg: "バケツに穴が空いている状態。良い栄養を入れても土台（粘膜）が弱いと素通りしてしまいます。", step: "味噌汁に『あおさ』や『とろろ昆布』を足して水溶性食物繊維を補給して。" },
+    "食事習慣": { name: "ガチガチ砂漠腸", icon: "🌵", msg: "一生懸命頑張っているのに、出口が塞がっている状態。今は出すことより潤すことが最優先です。", step: "朝一杯の白湯に、良質なオイルを小さじ1垂らして飲む習慣を。" },
+    "メンタル": { name: "ピリピリ敏感腸", icon: "⚡", msg: "脳と腸がダイレクトに繋がりすぎ、警報が鳴りっぱなしの状態。まずは脳の緊張を解く時間が必要です。", step: "1日5分だけ、スマホを置いて腹式呼吸。鼻から吸って、口から長く吐き切って。" },
+    "嗜好品": { name: "ドロドロ不完全燃焼腸", icon: "🍲", msg: "工場（腸）に材料が多すぎ、処理が追いつかずゴミが溜まっている状態。デトックスから始めましょう。", step: "最初の一口目だけ、目をつむって『30回』噛む。これだけで負担が激減します。" }
 };
 
-let flatQuestions = [];
-categories.forEach(c => c.items.forEach(q => flatQuestions.push({ q, cat: c.name, theme: c.theme, labels: c.labels, rev: c.reverse })));
-
 let currentIdx = 0, userName = "", scores = { "良質な睡眠": 0, "適度な運動": 0, "食事習慣": 0, "メンタル": 0, "嗜好品": 0 };
-const GAS_URL = "ここにあなたのGASのURLを貼る";
+let flatQuestions = [];
+categories.forEach(c => c.items.forEach(q => flatQuestions.push({ q, cat: c.name, rev: c.rev })));
 
 function startQuiz() {
     userName = document.getElementById('user-name').value;
@@ -95,54 +107,59 @@ function startQuiz() {
 
 function render() {
     const q = flatQuestions[currentIdx];
-    document.body.className = q.theme;
     document.getElementById('cat-tag').innerText = q.cat;
     document.getElementById('progress-text').innerText = `${currentIdx + 1} / ${flatQuestions.length}`;
     document.getElementById('q-text').innerText = q.q;
-
     const list = document.getElementById('options-list');
     list.innerHTML = '';
-    q.labels.forEach((label, i) => {
+    ["完璧/ない", "だいたい", "少しある/悪い", "かなりある/悪い"].forEach((label, i) => {
         const btn = document.createElement('button');
         btn.className = 'opt-btn';
         btn.innerText = label;
         btn.onclick = () => {
-            let score = q.rev ? (i + 1) : (4 - i); // ポジティブな状態ほど高得点（4点）
-            scores[q.cat] += score;
+            scores[q.cat] += q.rev ? (i + 1) : (4 - i);
             currentIdx++;
-            if(currentIdx < flatQuestions.length) render(); else finish();
+            if(currentIdx < flatQuestions.length) render(); else showResult();
         };
         list.appendChild(btn);
     });
 }
 
-function finish() {
+function showResult() {
     document.getElementById('quiz-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'block';
-    document.getElementById('display-name').innerText = userName;
+    document.getElementById('res-name').innerText = userName;
 
-    // 最も低いカテゴリーを特定
+    // 1. スコア計算
+    const totalRaw = Object.values(scores).reduce((a, b) => a + b, 0);
+    const maxRaw = 120; // 30問 × 4点
+    const finalScore = Math.floor((totalRaw / maxRaw) * 100);
+    document.getElementById('score-val').innerText = finalScore;
+
+    // 2. タイプ判定
     let worstCat = Object.keys(scores).reduce((a, b) => scores[a] < scores[b] ? a : b);
-    const resultType = typeDefinitions[worstCat];
+    const type = typeInfo[worstCat];
+    document.getElementById('char-icon').innerText = type.icon;
+    document.getElementById('type-name').innerText = `【${type.name}】`;
+    document.getElementById('type-msg').innerText = type.msg;
+    document.getElementById('type-step').innerText = type.step;
 
-    document.getElementById('type-result-name').innerText = `【${resultType.name}】`;
-    document.getElementById('advice-content').innerHTML = `
-        <p><strong>診断メッセージ:</strong><br>${resultType.msg}</p>
-        <p><span class="step-badge">明日からの一歩</span>${resultType.step}</p>
-    `;
+    // 3. カテゴリー別得点表示
+    const subList = document.getElementById('sub-scores-list');
+    subList.innerHTML = '';
+    for(let cat in scores) {
+        subList.innerHTML += `<div class="sub-item">${cat}: <b>${scores[cat]}</b> / 24</div>`;
+    }
 
-    // グラフ描画
+    // 4. グラフ
     new Chart(document.getElementById('radarChart'), {
         type: 'radar',
         data: {
             labels: Object.keys(scores),
             datasets: [{ data: Object.values(scores), backgroundColor: 'rgba(74, 124, 89, 0.2)', borderColor: 'rgba(74, 124, 89, 1)', borderWidth: 2 }]
         },
-        options: { scales: { r: { min: 6, max: 24, ticks: { stepSize: 6, display: false } } }, plugins: { legend: { display: false } } }
+        options: { scales: { r: { min: 0, max: 24, ticks: { display: false } } }, plugins: { legend: { display: false } } }
     });
-
-    // データ送信
-    fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ name: userName, ...scores }) });
 }
 </script>
 </body>
