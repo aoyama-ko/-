@@ -3,150 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美腸スタイル診断 | Premium Counseling</title>
+    <title>美腸スタイル診断 | 腸活カウンセリング</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --accent: #4a7c59;
-            --bg: #f8f9fa;
-        }
-
-        body {
-            font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-            background-color: var(--bg);
-            margin: 0; padding: 10px;
-            display: flex; justify-content: center; align-items: center; min-height: 100vh;
-        }
-
-        #app {
-            background: #fff;
-            width: 100%; max-width: 500px;
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
-            position: relative; overflow: hidden;
-        }
-
-        /* カテゴリーごとの色設定 */
-        .theme-sleep { --accent: #5b67a5; }   /* 紺色 */
-        .theme-move { --accent: #e67e22; }    /* オレンジ */
-        .theme-food { --accent: #27ae60; }    /* 緑 */
-        .theme-mental { --accent: #9b59b6; }  /* 紫 */
-        .theme-luxury { --accent: #e74c3c; }  /* 赤 */
-
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .cat-tag { 
-            padding: 4px 12px; background: var(--accent); color: white; 
-            border-radius: 20px; font-size: 0.8rem; transition: 0.5s;
-        }
+        :root { --accent: #4a7c59; --bg: #fdfaf5; --text: #333; }
+        body { font-family: "Hiragino Kaku Gothic ProN", sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; }
+        #app { background: #fff; width: 100%; max-width: 550px; border-radius: 30px; padding: 35px; box-shadow: 0 20px 50px rgba(0,0,0,0.06); position: relative; }
         
-        .progress-num { font-size: 0.8rem; color: #aaa; }
+        /* テーマカラー */
+        .theme-sleep { --accent: #5b67a5; } .theme-move { --accent: #e67e22; }
+        .theme-food { --accent: #27ae60; } .theme-mental { --accent: #9b59b6; } .theme-luxury { --accent: #e74c3c; }
 
-        .question-area { min-height: 250px; display: flex; flex-direction: column; justify-content: center; }
-        h2 { font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px; transition: 0.3s; }
-
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .tag { padding: 5px 15px; background: var(--accent); color: #fff; border-radius: 20px; font-size: 0.85rem; font-weight: bold; transition: 0.4s; }
+        
+        h2 { font-size: 1.25rem; line-height: 1.6; margin: 30px 0; min-height: 4rem; text-align: center; }
+        input[type="text"] { width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 15px; font-size: 1rem; margin: 20px 0; box-sizing: border-box; }
+        
         .options { display: grid; gap: 12px; }
-        button.opt {
-            border: 2px solid #f0f0f0; background: #fff; border-radius: 16px;
-            padding: 16px; font-size: 1rem; cursor: pointer; transition: 0.2s;
-            text-align: center; color: #444; font-weight: 500;
-        }
-        button.opt:hover { border-color: var(--accent); background: #fdfdfd; transform: translateY(-2px); }
-        button.opt:active { transform: scale(0.98); }
+        .opt-btn { padding: 18px; border: 2px solid #f0f0f0; background: #fff; border-radius: 18px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: 0.2s; }
+        .opt-btn:hover { border-color: var(--accent); background: #f9fbf9; }
 
-        /* 結果画面 */
-        #result-screen { display: none; text-align: center; animation: fadeIn 0.8s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .chart-box { margin: 20px 0; background: #fff; border-radius: 20px; padding: 10px; }
-        .advice-card { text-align: left; background: #fefefe; border-radius: 15px; padding: 15px; margin-top: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); }
-        
-        .cta-btn {
-            display: block; margin-top: 30px; padding: 18px;
-            background: var(--accent); color: white; text-decoration: none;
-            border-radius: 50px; font-weight: bold;
-        }
+        /* 結果画面のデザイン */
+        #result-screen { display: none; text-align: center; animation: fadeIn 0.8s forwards; }
+        .type-badge { display: inline-block; padding: 10px 25px; background: var(--accent); color: #fff; border-radius: 50px; font-size: 1.1rem; font-weight: bold; margin: 15px 0; }
+        .advice-box { text-align: left; background: #f9f9f9; padding: 25px; border-radius: 20px; margin-top: 25px; line-height: 1.7; border-left: 6px solid var(--accent); }
+        .step-badge { background: #fff; border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; }
+        .cta-btn { display: block; margin-top: 30px; padding: 20px; background: #06c755; color: #fff; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.1rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="theme-sleep">
 
 <div id="app">
-    <div id="quiz-screen">
+    <div id="entry-screen">
+        <h2 style="min-height:auto;">美腸スタイル診断へようこそ</h2>
+        <p style="text-align:center; color:#666;">30の質問から、あなたの「腸タイプ」と<br>改善のスモールステップを導き出します。</p>
+        <input type="text" id="user-name" placeholder="お名前を教えてください">
+        <button onclick="startQuiz()" style="width:100%; padding:20px; background:var(--accent); color:#fff; border:none; border-radius:50px; font-weight:bold; cursor:pointer;">診断をはじめる</button>
+    </div>
+
+    <div id="quiz-screen" style="display:none;">
         <div class="header">
-            <span id="cat-tag" class="cat-tag">良質な睡眠</span>
-            <span id="progress-text" class="progress-num">1 / 30</span>
+            <span id="cat-tag" class="tag">良質な睡眠</span>
+            <span id="progress-text" style="color:#aaa; font-size:0.8rem;">1 / 30</span>
         </div>
-        <div class="question-area">
-            <h2 id="q-text">読み込み中...</h2>
-            <div id="options" class="options"></div>
-        </div>
+        <h2 id="q-text">質問内容がここに入ります</h2>
+        <div id="options-list" class="options"></div>
     </div>
 
     <div id="result-screen">
-        <h2 style="color: var(--accent);">診断完了！</h2>
-        <div class="chart-box"><canvas id="radarChart"></canvas></div>
-        <div id="advice-list" class="advice-card"></div>
-        <a href="YOUR_LINE_URL" class="cta-btn">詳しくプロに相談する</a>
+        <p style="font-weight:bold; margin-bottom:5px;"><span id="display-name"></span>様の診断結果</p>
+        <div id="type-result-name" class="type-badge">判定中...</div>
+        <div style="max-width:350px; margin:0 auto;"><canvas id="radarChart"></canvas></div>
+        <div id="advice-content" class="advice-box"></div>
+        <a href="https://line.me/your-id" class="cta-btn">公式LINEで詳しく相談する</a>
     </div>
 </div>
 
 <script>
-const data = [
-    { cat: "良質な睡眠", theme: "theme-sleep", items: [
-        { q: "1. 昼間に眠気が出ることがありますか？", type: "-" },
-        { q: "2. なかなか寝付けないことがありますか？", type: "-" },
-        { q: "3. 寝る時間が決まっていませんか？", type: "-" },
-        { q: "4. 夜中に何度も目が覚めますか？", type: "-" },
-        { q: "5. 照明をつけたまま寝ていますか？", type: "-" },
-        { q: "6. 就寝前3時間以内に食事をすることがありますか？", type: "-" }
-    ], answers: ["全くない(快眠)", "たまにある", "よくある", "ほぼ毎日(辛い)"] },
-
-    { cat: "適度な運動", theme: "theme-move", items: [
-        { q: "1. 正しい姿勢で過ごせていますか？", type: "+" },
-        { q: "2. 安静時に深い呼吸ができていますか？", type: "+" },
-        { q: "3. 毎日のストレッチをしていますか？", type: "+" },
-        { q: "4. 30分以上連続で座り続けないよう意識していますか？", type: "+" },
-        { q: "5. 毎日30分以上の歩行をしていますか？", type: "+" },
-        { q: "6. 筋力トレーニングを習慣にしていますか？", type: "+" }
-    ], answers: ["完璧！", "意識している", "あまりできていない", "全くしていない"] },
-
-    { cat: "食事習慣", theme: "theme-food", items: [
-        { q: "1. 野菜が50%を占める献立回数は？", type: "+" },
-        { q: "2. 炭水化物20%:タンパク質30%の比率は？", type: "+" },
-        { q: "3. 油脂摂取(大さじ2杯)を意識していますか？", type: "+" },
-        { q: "4. 発酵食品の摂取量は？", type: "+" },
-        { q: "5. 食物繊維の摂取量は？", type: "+" },
-        { q: "6. 咀嚼回数(1口30回)は？", type: "+" }
-    ], answers: ["バッチリ", "だいたいOK", "少し足りない", "意識していない"] },
-
-    { cat: "メンタル", theme: "theme-mental", items: [
-        { q: "1. ストレスを溜め込みやすいですか？", type: "-" },
-        { q: "2. ストレスを引きずってしまう？", type: "-" },
-        { q: "3. 気分転換がうまくいかない？", type: "-" },
-        { q: "4. 解消してもスッキリしない？", type: "-" },
-        { q: "5. 気持ちが落ち込むことがよくある？", type: "-" },
-        { q: "6. 最近の自分は幸せだと思わない？", type: "-" }
-    ], answers: ["そんなことない", "たまにある", "けっこうある", "常に感じる"] },
-
-    { cat: "嗜好品", theme: "theme-luxury", items: [
-        { q: "1. 喫煙(副流煙含む)の機会は？", type: "-" },
-        { q: "2. 添加物の摂取量は？", type: "-" },
-        { q: "3. 砂糖の摂取量は？", type: "-" },
-        { q: "4. アルコールの摂取頻度は？", type: "-" },
-        { q: "5. 揚げ物の摂取頻度は？", type: "-" },
-        { q: "6. 冷たい飲み物の摂取は？", type: "-" }
-    ], answers: ["ほぼゼロ", "控えめ", "普通に摂る", "かなり多い"] }
+/** 質問データ & 回答ラベル & タイプ別定型文 **/
+const categories = [
+    { name: "良質な睡眠", theme: "theme-sleep", items: ["昼間に眠気が出る", "なかなか寝付けない", "寝る時間が決まっていない", "夜中に何度も目が覚める", "照明をつけたまま寝る", "就寝前3時間以内の食事"], labels: ["全くない", "たまにある", "よくある", "ほぼ毎日"], reverse: true },
+    { name: "適度な運動", theme: "theme-move", items: ["正しい姿勢で過ごせている", "安静時の深い呼吸", "毎日のストレッチ", "30分以上連続で座り続けない", "毎日30分以上の歩行", "筋力トレーニング"], labels: ["完璧！", "だいたいOK", "あまりしていない", "全くしていない"], reverse: false },
+    { name: "食事習慣", theme: "theme-food", items: ["野菜50%の献立回数", "炭水化物20%:タンパク質30%の比率", "適量の油脂摂取", "発酵食品の量", "食物繊維の量", "咀嚼回数"], labels: ["バッチリ", "意識している", "少し足りない", "できていない"], reverse: false },
+    { name: "メンタル", theme: "theme-mental", items: ["ストレスを溜めている", "ストレスを引きずってしまう", "気分転換がうまくいかない", "解消してもスッキリしない", "気持ちが落ち込むことがよくある", "幸せだと思わない"], labels: ["全くない", "たまにある", "よくある", "常に感じる"], reverse: true },
+    { name: "嗜好品", theme: "theme-luxury", items: ["喫煙（副流煙含む）", "添加物の摂取", "砂糖の摂取", "アルコールの摂取", "揚げ物の摂取", "冷たい飲み物の摂取"], labels: ["ほぼゼロ", "控えめ", "たまに摂る", "かなり多い"], reverse: true }
 ];
 
-let flatQuestions = [];
-data.forEach(group => {
-    group.items.forEach(item => {
-        flatQuestions.push({ ...item, cat: group.cat, theme: group.theme, ansLabels: group.answers });
-    });
-});
+const typeDefinitions = {
+    "良質な睡眠": { name: "ヘトヘト過労腸", msg: "腸もあなたと一緒に残業中。消化活動にエネルギーを使い果たし、修復が追いついていません。", step: "夕食をいつもの7割にして、寝る90分前に入浴。強制シャットダウンを。" },
+    "適度な運動": { name: "スカスカ栄養失調腸", msg: "バケツに穴が空いている状態。良い栄養を入れても土台（粘膜）が弱いと素通りしてしまいます。", step: "味噌汁に『あおさ』や『とろろ昆布』を足して水溶性食物繊維を補給して。" },
+    "食事習慣": { name: "ガチガチ砂漠腸", msg: "一生懸命頑張っているのに、出口が塞がっている状態。今は出すことより潤すことが最優先です。", step: "朝一杯の白湯に、良質なオイルを小さじ1垂らして飲む習慣を。" },
+    "メンタル": { name: "ピリピリ敏感腸", msg: "脳と腸がダイレクトに繋がりすぎ、警報が鳴りっぱなしの状態。まずは脳の緊張を解く時間が必要です。", step: "1日5分だけ、スマホを置いて腹式呼吸。鼻から吸って、口から長く吐き切って。" },
+    "嗜好品": { name: "ドロドロ不完全燃焼腸", msg: "工場（腸）に材料が多すぎ、処理が追いつかずゴミが溜まっている状態。デトックスから始めましょう。", step: "最初の一口目だけ、目をつむって『30回』噛む。これだけで負担が激減します。" }
+};
 
-let currentIdx = 0;
-let scores = { "良質な睡眠": 0, "適度な運動": 0, "食事習慣": 0, "メンタル": 0, "嗜好品": 0 };
+let flatQuestions = [];
+categories.forEach(c => c.items.forEach(q => flatQuestions.push({ q, cat: c.name, theme: c.theme, labels: c.labels, rev: c.reverse })));
+
+let currentIdx = 0, userName = "", scores = { "良質な睡眠": 0, "適度な運動": 0, "食事習慣": 0, "メンタル": 0, "嗜好品": 0 };
+const GAS_URL = "ここにあなたのGASのURLを貼る";
+
+function startQuiz() {
+    userName = document.getElementById('user-name').value;
+    if(!userName) return alert("お名前を入力してください");
+    document.getElementById('entry-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    render();
+}
 
 function render() {
     const q = flatQuestions[currentIdx];
@@ -155,63 +100,50 @@ function render() {
     document.getElementById('progress-text').innerText = `${currentIdx + 1} / ${flatQuestions.length}`;
     document.getElementById('q-text').innerText = q.q;
 
-    const optContainer = document.getElementById('options');
-    optContainer.innerHTML = '';
-
-    q.ansLabels.forEach((label, i) => {
+    const list = document.getElementById('options-list');
+    list.innerHTML = '';
+    q.labels.forEach((label, i) => {
         const btn = document.createElement('button');
-        btn.className = 'opt';
+        btn.className = 'opt-btn';
         btn.innerText = label;
         btn.onclick = () => {
-            // スコア計算：1〜4点。マイナスタイプは反転
-            let val = 4 - i; 
-            if(q.type === "-") val = i + 1; // 悪い項目で「ほぼ毎日(i=3)」なら1点になるように調整
-            // ↑ ロジック修正：健康な状態を高い点数にする
-            let scoreToAdd = (q.type === "+") ? (4 - i) : (i + 1);
-            // 修正：ポジティブな回答（左側 i=0）ほど高得点（4点）になるように統一
-            let finalScore = 4 - i; 
-            
-            scores[q.cat] += finalScore;
+            let score = q.rev ? (i + 1) : (4 - i); // ポジティブな状態ほど高得点（4点）
+            scores[q.cat] += score;
             currentIdx++;
-            if(currentIdx < flatQuestions.length) render();
-            else showResult();
+            if(currentIdx < flatQuestions.length) render(); else finish();
         };
-        optContainer.appendChild(btn);
+        list.appendChild(btn);
     });
 }
 
-function showResult() {
+function finish() {
     document.getElementById('quiz-screen').style.display = 'none';
     document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('display-name').innerText = userName;
 
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    new Chart(ctx, {
+    // 最も低いカテゴリーを特定
+    let worstCat = Object.keys(scores).reduce((a, b) => scores[a] < scores[b] ? a : b);
+    const resultType = typeDefinitions[worstCat];
+
+    document.getElementById('type-result-name').innerText = `【${resultType.name}】`;
+    document.getElementById('advice-content').innerHTML = `
+        <p><strong>診断メッセージ:</strong><br>${resultType.msg}</p>
+        <p><span class="step-badge">明日からの一歩</span>${resultType.step}</p>
+    `;
+
+    // グラフ描画
+    new Chart(document.getElementById('radarChart'), {
         type: 'radar',
         data: {
             labels: Object.keys(scores),
-            datasets: [{
-                label: 'あなたの腸活バランス',
-                data: Object.values(scores),
-                backgroundColor: 'rgba(74, 124, 89, 0.2)',
-                borderColor: 'rgba(74, 124, 89, 1)',
-                pointBackgroundColor: 'rgba(74, 124, 89, 1)'
-            }]
+            datasets: [{ data: Object.values(scores), backgroundColor: 'rgba(74, 124, 89, 0.2)', borderColor: 'rgba(74, 124, 89, 1)', borderWidth: 2 }]
         },
-        options: {
-            scales: { r: { min: 6, max: 24, ticks: { stepSize: 6 } } },
-            plugins: { legend: { display: false } }
-        }
+        options: { scales: { r: { min: 6, max: 24, ticks: { stepSize: 6, display: false } } }, plugins: { legend: { display: false } } }
     });
 
-    const advice = document.getElementById('advice-list');
-    advice.innerHTML = "<strong>💡 カテゴリー別評価</strong><br>";
-    Object.entries(scores).forEach(([cat, s]) => {
-        let star = s > 18 ? "⭐⭐⭐" : s > 12 ? "⭐⭐" : "⭐";
-        advice.innerHTML += `<div style="margin-top:8px; font-size:0.9rem;">${cat}: ${star} (${s}/24点)</div>`;
-    });
+    // データ送信
+    fetch(GAS_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ name: userName, ...scores }) });
 }
-
-render();
 </script>
 </body>
 </html>
